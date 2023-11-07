@@ -1,8 +1,7 @@
 {
-  "name": "extension",
+  "name": "ma-phone-chrome-extension",
   "version": "0.1.0",
-  "description": "My Chrome Extension",
-  "private": true,
+  "description": "My Phone Chrome Extension",
   "scripts": {
     "watch": "webpack --mode=development --watch --config config/webpack.config.js",
     "build": "webpack --mode=production --config config/webpack.config.js",
