@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // provided `sendResponse()` callback. But in order to be able to send an async
   // response, you need to explicitly return `true` in the onMessage handler
   // As a result, you can't use async/await here. You'd implicitly return a Promise.
-  getLocation().then((loc) => sendResponse(loc));
+  getLocation().then((loc) => sendResponse(loc)).catch(sendResponse);
 
   return true;
 });

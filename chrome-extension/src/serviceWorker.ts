@@ -64,10 +64,16 @@ async function gcmMessageReceived(message: chrome.gcm.IncomingMessage) {
   console.log("Message received:", JSON.stringify(message.data));
 
   if ((<any>message.data).type === MESSAGE_TYPE.GEO) {
-    const geo = await getGeolocation();
-    console.log("GEO location received: ", geo);
-    // show notification to show the GEO location
-    showNotification("GEO:" + JSON.stringify(geo));
+    try {
+      const geo = await getGeolocation();
+      console.log("GEO location received: ", geo);
+      // show notification to show the GEO location
+      showNotification("GEO:" + JSON.stringify(geo));
+    } catch (error: unknown) {
+      console.log("GEO location failed: ", (<Error>error).message);
+      console.error(error);
+      showNotification("GEO failed:" + JSON.stringify(error));
+    }
   }
 }
 

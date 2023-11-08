@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Extension",
-  "version": "0.1.0",
-  "description": "My Chrome Extension",
+  "name": "MaPhone",
+  "version": "0.1.1",
+  "description": "MaPhone Chrome Extension",
   "icons": {
     "16": "icons/icon_16.png",
     "32": "icons/icon_32.png",
@@ -13,7 +13,7 @@
     "service_worker": "serviceWorker.js"
   },
   "action": {
-    "default_title": "Extension",
+    "default_title": "MaPhone",
     "default_popup": "popup.html"
   },
   "permissions": [
