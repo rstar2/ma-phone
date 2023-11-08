@@ -1,0 +1,16 @@
+{
+  "name": "ma-phone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy:hosting:pwa": "firebase deploy --only hosting",
+    "deploy:hosting:tracker": "firebase deploy --only hosting",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:functions-env": "node firebase-env.js"
+  },
+  "keywords": [],
+  "author": "Rumen Neshev <rstardev@abv.bg>",
+  "license": "MIT"
+}
