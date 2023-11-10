@@ -1,5 +1,24 @@
 {
   "projects": {
     "default": "ma-phone-81020"
-  }
+  },
+  "targets": {
+    "ma-phone-81020": {
+      "hosting": {
+        "tracker-admin": [
+          "ma-phone-tracker-admin"
+        ],
+        "tracker-viewer": [
+          "ma-phone-tracker-viewer"
+        ],
+        "tracked": [
+          "ma-phone-tracked"
+        ],
+        "track": [
+          "ma-phone-track"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

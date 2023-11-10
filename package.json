@@ -5,12 +5,20 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy:hosting:pwa": "firebase deploy --only hosting",
-    "deploy:hosting:tracker": "firebase deploy --only hosting",
+    "deploy:hosting:track": "firebase deploy --only hosting:track",
+    "deploy:hosting:tracker-admin": "firebase deploy --only hosting:tracker-admin",
+    "deploy:hosting:tracker-viewer": "firebase deploy --only hosting:tracker-viewer",
+    "_predeploy:hosting:track": "firebase hosting:sites:create ma-phone-track && firebase target:apply hosting track ma-phone-track",
+    "_predeploy:hosting:tracker-admin": "firebase hosting:sites:create ma-phone-tracker-admin && firebase target:apply hosting tracker-admin ma-phone-tracker-admin",
+    "_predeploy:hosting:tracker-viewer": "firebase hosting:sites:create ma-phone-tracker-viewer && firebase target:apply hosting tracker-viewer ma-phone-tracker-viewer",
+    "deploy:hosting": "firebase deploy --only hosting",
     "deploy:functions": "firebase deploy --only functions",
     "deploy:functions-env": "node firebase-env.js"
   },
   "keywords": [],
   "author": "Rumen Neshev <rstardev@abv.bg>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "readline": "^1.3.0"
+  }
 }

@@ -7,3 +7,6 @@ typings/
 
 # Node.js dependency directory
 node_modules/
+
+# the functions dotenv file is not for version control, it's generated
+.env
