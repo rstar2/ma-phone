@@ -77,7 +77,11 @@ const common = {
     }),
 
     new webpack.DefinePlugin({
-      SENDER_ID: JSON.stringify(process.env.VITE_FIREBASE_SENDER_ID),
+        FIREBASE_API_KEY: JSON.stringify(process.env.VITE_FIREBASE_API_KEY),
+        FIREBASE_AUTH_DOMAIN: JSON.stringify(process.env.VITE_FIREBASE_AUTH_DOMAIN),
+        FIREBASE_PROJECT_ID: JSON.stringify(process.env.VITE_FIREBASE_PROJECT_ID),
+        FIREBASE_SENDER_ID: JSON.stringify(process.env.VITE_FIREBASE_SENDER_ID),
+        FIREBASE_APP_ID: JSON.stringify(process.env.VITE_FIREBASE_APP_ID),
     }),
   ],
 };

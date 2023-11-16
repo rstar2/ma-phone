@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import "./App.css";
+import logo from "/logo.svg";
 import firebase from "./lib/firebase";
 import { MESSAGE_TYPE } from "./lib/utils";
 import { getCurrentPosition as getGEO } from "./lib/geolocation";
@@ -41,6 +42,9 @@ function App() {
   };
   return (
     <div>
+      <div>
+        <img src={logo} alt="logo" />
+      </div>
       <h5>Keep me open please...</h5>
       <hr />
 

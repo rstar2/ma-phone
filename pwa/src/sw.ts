@@ -12,6 +12,7 @@ declare const self: ServiceWorkerGlobalScope;
 import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
 import { clientsClaim } from "workbox-core";
 import { MESSAGE_TYPE } from "./lib/utils";
+import notificationImage from "./assets/notification.png";
 
 // Caching --------------------------
 
@@ -41,13 +42,16 @@ self.addEventListener("push", async function (e) {
   switch (data.type) {
     case MESSAGE_TYPE.GEO:
       sendMessage(data.type, {
-        msg: "What's my geo position",
+        msg: "What's my GEO",
       });
       break;
   }
+
+  // PushNotification requires the a normal notification to be
   e.waitUntil(
-    self.registration.showNotification("Silent notification", {
-      body: data.type,
+    self.registration.showNotification("MaPhone", {
+      body: "",
+      icon: notificationImage,
     }),
   );
 });

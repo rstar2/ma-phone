@@ -6,7 +6,7 @@ import { storageDeviceName } from "./lib/storage";
 let NOTIFICATION_ID = 0;
 
 // it "populated" by Webpack DefinePlugin and taken from env variable
-declare var SENDER_ID: string;
+declare var FIREBASE_SENDER_ID: string;
 
 declare var self: ServiceWorkerGlobalScope;
 
@@ -50,7 +50,7 @@ function gcmRegister({
 
   // register new device
   if (deviceName) {
-    chrome.gcm.register([SENDER_ID], (regId) => {
+    chrome.gcm.register([FIREBASE_SENDER_ID], (regId) => {
       if (chrome.runtime.lastError) {
         // When the registration fails, handle the error and retry the
         // registration later.
@@ -102,8 +102,8 @@ function showNotification(messageStr: string) {
   chrome.notifications.create(
     "" + NOTIFICATION_ID++,
     {
-      title: "MaPhone Message",
-      iconUrl: "images/gcm_128.png",
+      title: "MaPhone (extension)",
+      iconUrl: "images/notification.png",
       type: "basic",
       message: messageStr,
     },

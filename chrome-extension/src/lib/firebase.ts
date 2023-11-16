@@ -1,15 +1,20 @@
 import { initializeApp } from "firebase/app";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
-// TODO: use env variables (e.g. DefinePlugin)
+// these are "populated" by Webpack DefinePlugin and taken from env variable
+declare var FIREBASE_API_KEY: string;
+declare var FIREBASE_AUTH_DOMAIN: string;
+declare var FIREBASE_PROJECT_ID: string;
+declare var FIREBASE_SENDER_ID: string;
+declare var FIREBASE_APP_ID: string;
+
 // config after registering firebase App
 const config = {
-  apiKey: "AIzaSyDdaS5no1a0DtQaJBpeaymCeSPadgRX7uY",
-  authDomain: "ma-phone-81020.firebaseapp.com",
-  projectId: "ma-phone-81020",
-  storageBucket: "ma-phone-81020.appspot.com",
-  messagingSenderId: "83025117279",
-  appId: "1:83025117279:web:6dbb611e6972188d339bea",
+  apiKey: FIREBASE_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
+  messagingSenderId: FIREBASE_SENDER_ID,
+  appId: FIREBASE_APP_ID,
 };
 const app = initializeApp(config);
 
