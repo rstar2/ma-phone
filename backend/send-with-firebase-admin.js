@@ -6,9 +6,8 @@ const app = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-const tokens = [
-    // ... put tokens here
-  ];
+// get tokens form this file
+const tokens = require("./firebase-message-tokens");
 
 app.messaging().sendEach(
   tokens.map((token) => ({

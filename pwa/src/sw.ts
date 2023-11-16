@@ -47,7 +47,9 @@ self.addEventListener("push", async function (e) {
       break;
   }
 
-  // PushNotification requires the a normal notification to be
+  // PushNotification requires the a normal notification to be shown,
+  // otherwise it will show a generic one "This site has been updated in the background"
+  // See https://pushpad.xyz/blog/chrome-push-notifications-this-site-has-been-updated-in-the-background
   e.waitUntil(
     self.registration.showNotification("MaPhone", {
       body: "",

@@ -14,3 +14,4 @@ firebase-debug.log
 .env.*.local
 
 backend/ma-phone*.json
+backend/firebase-message-tokens.js
