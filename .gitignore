@@ -13,4 +13,4 @@ firebase-debug.log
 .env.local
 .env.*.local
 
-backend
+backend/ma-phone*.json
