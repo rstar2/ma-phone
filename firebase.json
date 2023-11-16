@@ -16,10 +16,10 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": [
-    // the PWA app
+    // the main tracked app (PWA)
     {
       "target": "track",
-      "public": "pwa/dist",
+      "public": "web-tracked-pwa/dist",
       "rewrites": [
         {
           "source": "**",
@@ -28,10 +28,10 @@
       ]
     },
 
-    // the main tracker-admin
+    // the tracker-admin app
     {
       "target": "tracker-admin",
-      "public": "public",
+      "public": "web-tracker-admin/dist",
       "rewrites": [
         {
           "source": "**",
@@ -39,10 +39,10 @@
         }
       ]
     },
-    // the tracker-viewer
+    // the tracker-viewer app
     {
       "target": "tracker-viewer",
-      "public": "public",
+      "public": "web-tracker-viewer/dist",
       "rewrites": [
         {
           "source": "**",

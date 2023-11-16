@@ -9,11 +9,14 @@ const app = admin.initializeApp({
 // get tokens form this file
 const tokens = require("./firebase-message-tokens");
 
-app.messaging().sendEach(
-  tokens.map((token) => ({
-    token,
-    data: {
-      type: "GEO",
-    },
-  }))
-);
+(async () => {
+  const result = await app.messaging().sendEach(
+    tokens.map((token) => ({
+      token,
+      data: {
+        type: "GEO",
+      },
+    }))
+  );
+  console.log("Result", result);
+})();

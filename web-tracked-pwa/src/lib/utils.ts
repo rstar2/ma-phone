@@ -1,4 +1,4 @@
 export const MESSAGE_TYPE = {
-  REGISTER: "REGISTER",
+  NOTIFICATION: "NOTIFICATION",
   GEO: "GEO",
 };

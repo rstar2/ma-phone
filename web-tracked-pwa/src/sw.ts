@@ -50,12 +50,7 @@ self.addEventListener("push", async function (e) {
   // PushNotification requires the a normal notification to be shown,
   // otherwise it will show a generic one "This site has been updated in the background"
   // See https://pushpad.xyz/blog/chrome-push-notifications-this-site-has-been-updated-in-the-background
-  e.waitUntil(
-    self.registration.showNotification("MaPhone", {
-      body: "",
-      icon: notificationImage,
-    }),
-  );
+  e.waitUntil(showNotification(""));
 });
 
 // Click and open notification
@@ -74,10 +69,23 @@ self.addEventListener(
 
 // listen to messages from tabs/clients
 self.addEventListener("message", (event) => {
-  if (event.data.type === MESSAGE_TYPE.GEO) {
-    // Process message from a client
+  // client want to show a notification (actually it could use the NotificationAPI itself),
+  // as thus all the "notifications" logic is in one place (icon, etc...)
+  if (event.data.type === MESSAGE_TYPE.NOTIFICATION) {
+    const data = event.data.data;
+
+    if (data.type === MESSAGE_TYPE.GEO) {
+      showNotification(data.data.geo ? "GEO success" : "GEO failed");
+    }
   }
 });
+
+function showNotification(body: string) {
+  return self.registration.showNotification("MaPhone", {
+    body,
+    icon: notificationImage,
+  });
+}
 
 function sendMessage(type: string, data: any) {
   self.clients.matchAll({ type: "window" }).then(function (clients) {
