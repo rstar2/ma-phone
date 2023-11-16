@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MaPhone",
-  "version": "0.1.1",
+  "version": "0.3.0",
   "description": "MaPhone Chrome Extension",
   "icons": {
     "16": "icons/icon_16.png",

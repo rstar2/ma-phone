@@ -11,6 +11,7 @@ declare const self: ServiceWorkerGlobalScope;
 
 import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
 import { clientsClaim } from "workbox-core";
+import { MESSAGE_TYPE } from "./lib/utils";
 
 // Caching --------------------------
 
@@ -34,11 +35,11 @@ self.addEventListener("push", async function (e) {
   // assuming data is in plain text
   const message = e.data.json();
 
-  // if using the Firebase Admin SDK the data is in message.data , but for easier tests/simulations it the whole message
+  // if using the Firebase Admin SDK the data is in message.data, but for easier tests/simulations it the whole message
   const data = message.data || message;
 
   switch (data.type) {
-    case "geo":
+    case MESSAGE_TYPE.GEO:
       sendMessage(data.type, {
         msg: "What's my geo position",
       });
@@ -65,9 +66,9 @@ self.addEventListener(
 // Client(s) communication --------------------------
 // many ways - https://web.dev/articles/two-way-communication-guide
 
-//listen to messages
+// listen to messages from tabs/clients
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "geo") {
+  if (event.data.type === MESSAGE_TYPE.GEO) {
     // Process message from a client
   }
 });

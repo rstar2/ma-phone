@@ -1,111 +1,79 @@
 import "./popup.css";
+import { storageDeviceName } from "./lib/storage";
+import { MESSAGE_TYPE } from "./lib/utils";
 
-(function () {
-  // We will make use of Storage API to get and store `count` value
-  // More information on Storage API can we found at
-  // https://developer.chrome.com/extensions/storage
+function init() {
+  const deviceNameInput = document.getElementById("deviceNameInput") as HTMLInputElement;
+  const registerBtn = document.getElementById("registerBtn") as HTMLButtonElement;
 
-  // To get storage access, we have to mention it in `permissions` property of manifest.json file
-  // More information on Permissions can we found at
-  // https://developer.chrome.com/extensions/declare_permissions
-  const counterStorage = {
-    get: (cb: (count: number) => void) => {
-      chrome.storage.sync.get(["count"], (result) => {
-        cb(result.count);
-      });
-    },
-    set: (value: number, cb: () => void) => {
-      chrome.storage.sync.set(
-        {
-          count: value,
-        },
-        () => {
-          cb();
-        },
-      );
-    },
-  };
+  let oldDeviceName: string | undefined;
+  // disallow editing/registering until current s get
+  deviceNameInput.disabled = true;
+  registerBtn.disabled = true;
 
-  function setupCounter(initialValue = 0) {
-    document.getElementById("counter")!.innerHTML = initialValue.toString();
-
-    document.getElementById("incrementBtn")!.addEventListener("click", () => {
-      updateCounter({
-        type: "INCREMENT",
-      });
+  // on click send a message to serviceWorker to register/unregister this device
+  registerBtn.addEventListener("click", () => {
+    const deviceName = deviceNameInput.value;
+    // no need to do anything
+    if (deviceName === oldDeviceName) return;
+    
+    sendMessageServiceWorker(MESSAGE_TYPE.REGISTER, {
+      deviceName,
+      oldDeviceName,
+    }, () => {
+        // close itself
+        window.close();
     });
+  });
 
-    document.getElementById("decrementBtn")!.addEventListener("click", () => {
-      updateCounter({
-        type: "DECREMENT",
-      });
-    });
-  }
+  // get current device name and allow editing/registering
+  storageDeviceName.get((deviceName?: string) => {
+    deviceNameInput.disabled = false;
+    registerBtn.disabled = false;
+    deviceNameInput.value = deviceName || "";
+    // store as current/old
+    oldDeviceName = deviceName;
+  });
+}
 
-  function updateCounter({ type }: { type: string }) {
-    counterStorage.get((count: number) => {
-      let newCount: number;
+// Communicate with serviceWorker by sending a message
+function sendMessageServiceWorker(type: string, data?: Record<string, any>, cb?: () => void) {
+  console.log(`Send message ${type} to serviceWorker.`);
 
-      if (type === "INCREMENT") {
-        newCount = count + 1;
-      } else if (type === "DECREMENT") {
-        newCount = count - 1;
-      } else {
-        newCount = count;
-      }
-
-      counterStorage.set(newCount, () => {
-        document.getElementById("counter")!.innerHTML = newCount.toString();
-
-        // Communicate with content script of
-        // active tab by sending a message
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          const tab = tabs[0];
-
-          // send message to content scripts
-          chrome.tabs.sendMessage(
-            tab.id!,
-            {
-              type: "COUNT",
-              data: {
-                count: newCount,
-              },
-            },
-            () => {
-              console.log("Current count value passed to contentScript file");
-            },
-          );
-        });
-      });
-    });
-  }
-
-  function restoreCounter() {
-    // Restore count value
-    counterStorage.get((count: number) => {
-      if (typeof count === "undefined") {
-        // Set counter value as 0
-        counterStorage.set(0, () => {
-          setupCounter(0);
-        });
-      } else {
-        setupCounter(count);
-      }
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", restoreCounter);
-
-  // Communicate with background file by sending a message
   chrome.runtime.sendMessage(
     {
-      type: "GREETINGS",
-      data: {
-        message: "Hello, my name is Pop. I am from Popup.",
-      },
+      type,
+      data,
     },
     (response) => {
-      console.log(response.message);
+      // lister for response
+      if (response) console.log(`Response from serviceWorker: ${JSON.stringify(response)}.`);
+      cb?.();
     },
   );
-})();
+}
+
+// Communicate with content script of active tab by sending a message
+function sendMessageActiveTab(type: string, data?: Record<string, any>) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+
+    // send message to content scripts
+    chrome.tabs.sendMessage(
+      tab.id!,
+      {
+        type,
+        data,
+      },
+      (response) => {
+        // lister for response
+        console.log(`Response from active tab contentScript: ${JSON.stringify(response)}.`);
+      },
+    );
+  });
+}
+
+document.addEventListener("DOMContentLoaded", init);
+
+// demo
+sendMessageServiceWorker("GREETINGS", { message: "Hello from Popup." });

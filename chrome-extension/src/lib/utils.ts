@@ -5,10 +5,9 @@ export type GEO = {
 };
 
 export const MESSAGE_TYPE = {
+  REGISTER: "REGISTER",
   GEO: "GEO",
 };
 
 export const OFFSCREEN_TAB = "offscreen";
 export const OFFSCREEN_DOCUMENT_PATH = "/offscreen.html";
-
-export const STORAGE_KEY_GCM_REGISTERED = "gcmRegistered";

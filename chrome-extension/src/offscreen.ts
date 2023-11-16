@@ -1,4 +1,4 @@
-import { GEO, MESSAGE_TYPE, OFFSCREEN_TAB } from "./utils";
+import { GEO, MESSAGE_TYPE, OFFSCREEN_TAB } from "./lib/utils";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Return early if this message isn't meant for the offscreen document.

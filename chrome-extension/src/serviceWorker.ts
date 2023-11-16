@@ -1,10 +1,7 @@
-import {
-  GEO,
-  MESSAGE_TYPE,
-  OFFSCREEN_DOCUMENT_PATH,
-  OFFSCREEN_TAB,
-  STORAGE_KEY_GCM_REGISTERED,
-} from "./utils";
+import { GEO, MESSAGE_TYPE, OFFSCREEN_DOCUMENT_PATH, OFFSCREEN_TAB } from "./lib/utils";
+
+import { addDevice, removeDevice, reportDeviceGEO } from "./lib/firebase";
+import { storageDeviceName } from "./lib/storage";
 
 let NOTIFICATION_ID = 0;
 
@@ -22,40 +19,61 @@ let offscreenCreating: Promise<void> | undefined; // A global promise to avoid c
 chrome.runtime.onMessage.addListener(messageReceived);
 
 // Set up listeners to trigger the first time registration.
-chrome.runtime.onInstalled.addListener(gcmRegister);
-chrome.runtime.onStartup.addListener(gcmRegister);
+// chrome.runtime.onInstalled.addListener(gcmRegister);
+// chrome.runtime.onStartup.addListener(gcmRegister);
 
 // Set up a listener for GCM message event.
 chrome.gcm.onMessage.addListener(gcmMessageReceived);
 
-function gcmRegister() {
-  chrome.storage.local.get(STORAGE_KEY_GCM_REGISTERED, (result) => {
-    // If already registered, bail out.
-    if (result[STORAGE_KEY_GCM_REGISTERED]) return;
+function gcmRegister({
+  deviceName,
+  oldDeviceName,
+}: {
+  deviceName?: string;
+  oldDeviceName?: string;
+}) {
+  // chrome.app.window.create(
+  //   "register.html",
+  //   {  width: 500,
+  //      height: 400,
+  //      frame: 'chrome'
+  //   },
+  //   function(appWin) {}
+  // );
 
-    // chrome.app.window.create(
-    //   "register.html",
-    //   {  width: 500,
-    //      height: 400,
-    //      frame: 'chrome'
-    //   },
-    //   function(appWin) {}
-    // );
-  });
+  // unregister old
+  if (oldDeviceName) {
+    removeDevice({ name: oldDeviceName }).catch((error) => {
+      console.error(`Failed to unregister device ${oldDeviceName}`, error);
+    });
+  }
 
-  chrome.gcm.register([SENDER_ID], (regId) => {
-    if (chrome.runtime.lastError) {
-      // When the registration fails, handle the error and retry the
-      // registration later.
-      showNotification("Registration failed: " + chrome.runtime.lastError.message);
-      return;
-    }
-    showNotification("Registration success: " + regId);
-    console.log("??? " + regId);
+  // register new device
+  if (deviceName) {
+    chrome.gcm.register([SENDER_ID], (regId) => {
+      if (chrome.runtime.lastError) {
+        // When the registration fails, handle the error and retry the
+        // registration later.
+        showNotification("GCM-Registration failed: " + chrome.runtime.lastError.message);
+        return;
+      }
 
-    // Mark that the first-time registration is done.
-    // chrome.storage.local.set({ [STORAGE_KEY_GCM_REGISTERED]: true });
-  });
+      addDevice({
+        userAgent: navigator.userAgent,
+        gcm: regId,
+        name: deviceName,
+      })
+        .then((result) => {
+          // mark that this device registration is done.
+          storageDeviceName.set(deviceName);
+
+          showNotification(`Device registered: ${deviceName} - ${regId}`);
+        })
+        .catch((error) => {
+          console.error(`Failed to add/register device ${deviceName}`, error);
+        });
+    });
+  }
 }
 
 async function gcmMessageReceived(message: chrome.gcm.IncomingMessage) {
@@ -67,6 +85,9 @@ async function gcmMessageReceived(message: chrome.gcm.IncomingMessage) {
     try {
       const geo = await getGeolocation();
       console.log("GEO location received: ", geo);
+      
+      storageDeviceName.get((deviceName) => reportDeviceGEO({ name: deviceName, geo }));
+
       // show notification to show the GEO location
       showNotification("GEO:" + JSON.stringify(geo));
     } catch (error: unknown) {
@@ -95,18 +116,22 @@ function messageReceived(
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void,
 ) {
-  if (message.type === "GREETINGS") {
-    const messageStr: string = `Hi ${
-      sender.tab ? "Con" : "Pop"
-    }, my name is Bac. I am from Background. It's great to hear from you.`;
+  const { type, data } = message;
 
-    // Log message coming from the `request` parameter
-    console.log(message.data.message);
+  console.log(`Received message ${type} : ${JSON.stringify(data)}.`);
 
-    // Send a response message
-    sendResponse({
-      message: messageStr,
-    });
+  switch (type) {
+    // demo
+    case "GREETINGS":
+      sendResponse({
+        message: `Hi ${sender.tab ? "Content" : "Popup"}. I am from Background.`,
+      });
+      break;
+
+    case MESSAGE_TYPE.REGISTER:
+      sendResponse({});
+      gcmRegister(data);
+      break;
   }
 }
 

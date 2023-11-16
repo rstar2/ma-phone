@@ -3,23 +3,23 @@ const options = {
   timeout: 5000,
   maximumAge: 0,
 };
-export type GeoPosition = {
+export type GEO = {
   latitude: number;
   longitude: number;
   accuracy: number;
-  timestamp: EpochTimeStamp;
+  //   timestamp: EpochTimeStamp;
 };
 
 const noop = () => undefined;
 
-export default async function configGeolocation() {
+export async function config() {
   navigator.geolocation.getCurrentPosition(noop, noop);
 }
 
-export async function getCurrentPosition(): Promise<GeoPosition> {
+export async function getCurrentPosition(): Promise<GEO> {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
-      function success({ coords, timestamp }) {
+      function success({ coords /* , timestamp */ }) {
         const { latitude, longitude, accuracy } = coords;
         // console.log("Your current position is:");
         // console.log(`Latitude : ${latitude}`);
@@ -30,7 +30,7 @@ export async function getCurrentPosition(): Promise<GeoPosition> {
           latitude,
           longitude,
           accuracy,
-          timestamp,
+          //   timestamp,
         });
       },
       function error(err) {

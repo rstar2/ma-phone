@@ -1,31 +1,79 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/logo.svg";
+import { useState, useEffect } from "react";
+
 import "./App.css";
+import firebase from "./lib/firebase";
+import { MESSAGE_TYPE } from "./lib/utils";
+import { getCurrentPosition as getGEO } from "./lib/geolocation";
+import { getFCMToken } from "./lib/pushNotifications";
 
+const LOCALE_STORAGE_KEY_DEVICE_NAME = "deviceName";
 function App() {
-  const [count, setCount] = useState(0);
+  const [isDisabled, setDisabled] = useState(true);
+  const [deviceName, setDeviceName] = useState("");
+  const [isRegistered, setRegistered] = useState(false);
 
+  useEffect(() => {
+    const oldDeviceName = localStorage.getItem(LOCALE_STORAGE_KEY_DEVICE_NAME);
+    setDeviceName(oldDeviceName || "");
+    setDisabled(false);
+    setRegistered(!!oldDeviceName);
+  }, []);
+
+  const handleRegister = async () => {
+    const oldDeviceName = localStorage.getItem(LOCALE_STORAGE_KEY_DEVICE_NAME);
+    if (oldDeviceName) {
+      await firebase.httpsCallable("removeDevice")({
+        name: oldDeviceName,
+      });
+      setRegistered(false);
+      localStorage.removeItem(LOCALE_STORAGE_KEY_DEVICE_NAME);
+    }
+
+    if (deviceName) {
+      await firebase.httpsCallable("addDevice")({
+        name: deviceName,
+        userAgent: navigator.userAgent,
+        fcm: await getFCMToken(),
+      });
+      setRegistered(true);
+      localStorage.setItem(LOCALE_STORAGE_KEY_DEVICE_NAME, deviceName);
+    }
+  };
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-    </>
+    <div>
+      <h5>Keep me open please...</h5>
+      <hr />
+
+      <label htmlFor="deviceName" style={{ margin: "0 10px" }}>
+        Device Name:
+      </label>
+      <input id="deviceName" disabled={isDisabled} value={deviceName} onChange={(e) => setDeviceName(e.target.value)} />
+      <button onClick={handleRegister} disabled={isDisabled} style={{ margin: "0 10px" }}>
+        Register
+      </button>
+      {isRegistered && <span title="Registered">✔️</span>}
+    </div>
   );
 }
+
+// //send message to serviceWorker
+// navigator.serviceWorker.controller.postMessage({
+//   type: "MSG_ID",
+// });
+
+// listen to messages from serviceWorker
+navigator.serviceWorker.onmessage = async (event) => {
+  if (event.data.type === MESSAGE_TYPE.GEO) {
+    // process message from service-worker
+    const deviceName = localStorage.getItem(LOCALE_STORAGE_KEY_DEVICE_NAME);
+    if (!deviceName) return;
+
+    const geo = await getGEO();
+    firebase.httpsCallable("reportDeviceGEO")({
+      name: deviceName,
+      geo,
+    });
+  }
+};
 
 export default App;

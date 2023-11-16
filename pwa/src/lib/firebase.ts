@@ -82,21 +82,3 @@ const firebaseConfig = {
 
 // create instance of the firebase service
 export default new Firebase(firebaseConfig);
-
-// utilities
-
-export type Doc = Readonly<{
-  id: string;
-  [key: string]: unknown;
-}>;
-
-/**
- * Parse all users/activities
- */
-export const parseDocs = (snapshot: QuerySnapshot): Doc[] => {
-  const docs: Doc[] = [];
-  snapshot.forEach((doc) => {
-    docs.push({ id: doc.id, ...doc.data() });
-  });
-  return docs;
-};
