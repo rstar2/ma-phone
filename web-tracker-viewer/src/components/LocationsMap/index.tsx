@@ -1,17 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import { APIProvider, Map, AdvancedMarker, useMap, useMarkerRef, Pin, InfoWindow } from "@vis.gl/react-google-maps";
-import Avatar, { AvatarProps } from "boring-avatars";
-import { Box, Stack, Text } from "@chakra-ui/react";
+import { Box, Stack, Stat, StatLabel, StatNumber, StatHelpText, useDisclosure } from "@chakra-ui/react";
 
-import { Location } from "../lib/types";
 import "./styles.css";
-
-const avatarOpts = {
-  size: 40,
-  variant: "beam",
-  colors: ["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"],
-} satisfies AvatarProps;
+import { Location } from "../../lib/types";
+import Avatar from "../Avatar";
 
 // Sofia
 const sofia = { lat: 42.69751, lng: 23.32415 };
@@ -20,7 +14,7 @@ type LocationsMapProps = {
   locations: Location[];
 };
 
-export function LocationsMap({ locations }: LocationsMapProps): React.ReactNode {
+export default function LocationsMap({ locations }: LocationsMapProps): React.ReactNode {
   const map = useMap();
 
   useEffect(() => {
@@ -50,7 +44,7 @@ type LocationMarkerProps = {
 
 function LocationMarker({ location }: LocationMarkerProps) {
   const position = useMemo(() => ({ lat: location.geo.latitude, lng: location.geo.longitude }), [location]);
-  const [infoWindowOpen, setInfoWindowOpen] = useState(false);
+  const { isOpen, onToggle, onClose } = useDisclosure({defaultIsOpen: false});
 
   const [markerRef, marker] = useMarkerRef();
   useEffect(() => {
@@ -62,17 +56,17 @@ function LocationMarker({ location }: LocationMarkerProps) {
   }, [marker]);
 
   return (
-    <AdvancedMarker ref={markerRef} position={position} onClick={() => setInfoWindowOpen(!infoWindowOpen)}>
+    <AdvancedMarker ref={markerRef} position={position} onClick={onToggle}>
       <Pin background={"#22ccff"} borderColor={"#1e89a1"} glyphColor={"#0f677a"} />
-      {infoWindowOpen && (
-        <InfoWindow anchor={marker} maxWidth={300} onCloseClick={() => setInfoWindowOpen(false)}>
+      {isOpen && (
+        <InfoWindow anchor={marker} maxWidth={300} onCloseClick={onClose}>
           <Stack direction="row" className="locationMarkers">
-            <Avatar {...avatarOpts} name={location.name} />
-            <Stack>
-              <Text color="brand.900">{location.name}</Text>
-              <Text color="brand.500">{new Date(location.timestamp.seconds).toLocaleString()}</Text>
-              <Text color="brand.500">{location.geo.accuracy}</Text>
-            </Stack>
+            <Avatar name={location.name} />
+            <Stat size="sm" color="brand.900">
+              <StatNumber>{location.name}</StatNumber>
+              <StatLabel>{new Date(location.timestamp.seconds).toLocaleString()}</StatLabel>
+              <StatHelpText>{Math.round(location.geo.accuracy)}</StatHelpText>
+            </Stat>
           </Stack>
         </InfoWindow>
       )}
